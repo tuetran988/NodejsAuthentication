@@ -10,6 +10,15 @@ const {validateParam , validateBody, schemas} = require('../helpers/routerHelper
 const passport = require('passport')
 const passportConfig = require('../middlewares/passport') //only import code
 
+
+router
+  .route("/auth/google")
+  .post(
+    passport.authenticate("google-plus-token", { session: false }),
+    userController.authGoogle
+  );
+
+
 router
   .route("/")
   .get(userController.index)
