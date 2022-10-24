@@ -7,14 +7,23 @@ const userController = require("../controllers/user");
 
 const {validateParam , validateBody, schemas} = require('../helpers/routerHelpers');
 
+const passport = require('passport')
+const passportConfig = require('../middlewares/passport') //only import code
+
 router
   .route("/")
   .get(userController.index)
   .post(validateBody(schemas.userSchema), userController.newUser);
 
   router.route('/signup').post(validateBody(schemas.authSignUpSchema),userController.signUp)
-  router.route('/signin').post(validateBody(schemas.authSignInSchema),userController.signIn)
-  router.route('/secret').get(userController.secret)
+  router
+    .route("/signin")
+    .post(
+      validateBody(schemas.authSignInSchema),
+      passport.authenticate("local", { session: false }),
+      userController.signIn
+    );
+  router.route('/secret').get(passport.authenticate('jwt',{session:false}),userController.secret)
 
 
 
