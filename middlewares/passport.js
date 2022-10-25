@@ -3,7 +3,10 @@ const JwtStrategy = require('passport-jwt').Strategy
 const localStrategy = require("passport-local").Strategy
 const { ExtractJwt } = require('passport-jwt')
 const { JWT_SECRET, auth } = require("../configs/index");
-const GooglePlusTokenStrategy = require('passport-google-plus-token')
+
+const FacebookTokenStrategy = require("passport-facebook-token");
+const GooglePlusTokenStrategy = require('passport-google-plus-token');
+
 
 
 const User = require('../models/User')
@@ -55,6 +58,8 @@ passport.use(new GooglePlusTokenStrategy({
          authType: "google",
          email: profile.emails[0].value,
          authGoogleID: profile.id,
+         firstName: profile.name.givenName,
+         lastName: profile.name.familyName,
        });
          await newUser.save();
          next(null, newUser);
@@ -62,3 +67,33 @@ passport.use(new GooglePlusTokenStrategy({
        next(error, false);
      }
 }))
+
+
+//passport facebook
+passport.use(new FacebookTokenStrategy({
+    clientID: auth.facebook.CLIENT_ID,
+    clientSecret: auth.facebook.CLIENT_SECRET,
+    fbGraphVersion: 'v3.0'
+  }, async function(accessToken, refreshToken, profile, done) {
+       try {
+       // check wherether this current user exist in the database
+       const user = await User.findOne({
+         authFacebookID: profile.id,
+         authType: "facebook",
+       });
+        if (user) return done(null, user);
+       //if new account
+       const newUser = new User({
+            authType: "facebook",
+            email: profile.emails[0].value,
+           authFacebookID: profile.id,
+           firstName: profile.name.givenName,
+           lastName: profile.name.familyName
+       });
+         await newUser.save();
+         done(null, newUser);
+     } catch (error) {
+       done(error, false);
+     }
+  }
+));

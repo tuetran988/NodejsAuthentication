@@ -184,6 +184,14 @@ const authGoogle = async (req, res, next) => {
     success: true,
   });
 };
+const authFacebook = async (req, res, next) => {
+  // assign a token
+  const token = encodedToken(req.user._id);
+  res.setHeader("Authorization", token);
+  res.status(200).json({
+    success: true,
+  });
+};
 
 module.exports = {
   index,
@@ -197,4 +205,5 @@ module.exports = {
   signIn,
   secret,
   authGoogle,
+  authFacebook,
 };
