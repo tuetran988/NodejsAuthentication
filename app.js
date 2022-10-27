@@ -2,6 +2,7 @@
 require('dotenv').config()
 
 const bodyParser = require("body-parser");
+const cors = require("cors")
 const express = require("express");
 const logger = require("morgan"); // control client request
 const mongoClient = require("mongoose");
@@ -28,6 +29,7 @@ app.use(secureApp());
 const userRoute = require("./routes/user");
 const deckRoute = require("./routes/deck");
 // middleware run before handler but after client send request
+app.use(cors());
 app.use(logger("dev"));
 app.use(bodyParser.json());
 //router
